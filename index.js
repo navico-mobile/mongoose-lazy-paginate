@@ -23,7 +23,7 @@ function paginate(query, options, callback) {
   let sort = options.sort;
   let populate = options.populate;
   let lean = options.lean || false;
-  let leanWithId = options.leanWithId ? options.leanWithId : true;
+  let leanWithId = options.leanWithId !== undefined ? options.leanWithId : true;
   let limit = options.limit ? options.limit : 10;
   let page, offset, skip, promises;
   if (options.offset) {
@@ -49,24 +49,45 @@ function paginate(query, options, callback) {
         docsQuery.populate(item);
       });
     }
-    promises = {
-      docs: docsQuery.exec(),
-      count: this.count(query).exec()
-    };
+    promises = [
+      new Promise((resolve, reject) => {
+        docsQuery.exec((error, docs) => {
+          if (error) {
+            return reject({error});
+          }
+          if (docs.length < limit) {
+            // in case this is last page, rejecting promise to prevent execution of countDocuments
+            return reject([{
+              docs,
+              count: skip + docs.length
+            }]);
+          }
+          return resolve({docs});
+        })
+      }),
+      this.countDocuments(query).exec()
+    ];
     if (lean && leanWithId) {
-      promises.docs = promises.docs.then((docs) => {
+      promises[0] = promises[0].then(({docs, count}) => {
         docs.forEach((doc) => {
           doc.id = String(doc._id);
         });
-        return docs;
+        return {docs, count};
       });
     }
   }
-  promises = Object.keys(promises).map((x) => promises[x]);
-  return Promise.all(promises).then((data) => {
+  
+
+  // we use the same handler for both then and catch to skip countDocuments call if it's not required
+  // in some edge cases we can calculate total count of documents based only on query result
+  // if any of the promises return an error we throw it.
+  const handler = ([data, countDocuments]) => {
+    if (data.error) {
+      throw data.error;
+    }
     let result = {
       docs: data.docs,
-      total: data.count,
+      total: data.count || countDocuments,
       limit: limit
     };
     if (offset !== undefined) {
@@ -74,15 +95,18 @@ function paginate(query, options, callback) {
     }
     if (page !== undefined) {
       result.page = page;
-      result.pages = Math.ceil(data.count / limit) || 1;
+      result.pages = Math.ceil(result.total / limit) || 1;
     }
     if (typeof callback === 'function') {
       return callback(null, result);
     }
-    let promise = new Promise();
-    promise.resolve(result);
-    return promise;
-  });
+    return new Promise((resolve, _reject) => {
+      return resolve(result);
+    });
+  };
+  return Promise.all(promises)
+    .then(handler)
+    .catch(handler);
 }
 
 /**

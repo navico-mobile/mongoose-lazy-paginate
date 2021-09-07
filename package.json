@@ -1,7 +1,7 @@
 {
-  "name": "mongoose-paginate",
-  "description": "Pagination plugin for Mongoose",
-  "version": "5.0.2",
+  "name": "mongoose-lazy-paginate",
+  "description": "Lazy pagination plugin for Mongoose",
+  "version": "1.0.0",
   "author": {
     "name": "Edward Hotchkiss",
     "email": "edward@edwardhotchkiss.com"
@@ -33,11 +33,11 @@
     "page"
   ],
   "engines": {
-    "node": ">=4.2.4"
+    "node": ">=14.17.0"
   },
   "dependencies": {},
   "devDependencies": {
-    "mongoose": "4.3.4",
+	"mongoose": "5.12.12"
     "mocha": "2.3.4",
     "chai": "3.4.1"
   },

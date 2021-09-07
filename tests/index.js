@@ -68,8 +68,6 @@ describe('mongoose-paginate', function() {
   describe('paginates', function() {
     it('with criteria', function() {
       return Book.paginate({ title: 'Book #10' }).then((result) => {
-        console.log('with criteria logging ==================');
-        console.log('result:', result);
         expect(result.docs).to.have.length(1);
         expect(result.docs[0].title).to.equal('Book #10');
       });
@@ -116,13 +114,13 @@ describe('mongoose-paginate', function() {
         expect(result).to.not.have.property('offset');
       });
     });
-    it('with zero limit', function() {
+    it('with zero limit behave as with default limit=10', function() {
       return Book.paginate({}, { page: 1, limit: 0 }).then(function(result) {
-        expect(result.docs).to.have.length(0);
+        expect(result.docs).to.have.length(10);
         expect(result.total).to.equal(100);
-        expect(result.limit).to.equal(0);
+        expect(result.limit).to.equal(10);
         expect(result.page).to.equal(1);
-        expect(result.pages).to.equal(Infinity);
+        expect(result.pages).to.equal(10);
       });
     });
     it('with select', function() {
