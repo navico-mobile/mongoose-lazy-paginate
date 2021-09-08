@@ -1,19 +1,14 @@
 
 # mongoose-paginate
 
-> Pagination plugin for [Mongoose](http://mongoosejs.com)
+> Lazy pagination plugin for [Mongoose](http://mongoosejs.com)
 
-[![NPM version](https://img.shields.io/npm/v/mongoose-paginate.svg)](https://npmjs.org/package/mongoose-paginate)
-[![Build status](https://img.shields.io/travis/edwardhotchkiss/mongoose-paginate.svg)](https://travis-ci.org/edwardhotchkiss/mongoose-paginate)
-
-**Note:** This plugin will only work with Node.js >= 4.2 and Mongoose >= 4.2
-=======
-[![NPM](https://nodei.co/npm/mongoose-paginate.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/mongoose-paginate/)
+**Note:** This plugin only tested with Node.js >= 14 and Mongoose >= 5
 
 ## Installation
 
 ```sh
-npm install mongoose-paginate
+npm install mongoose-lazy-paginate
 ```
 
 ## Usage
@@ -22,7 +17,7 @@ Add plugin to a schema and then use model `paginate` method:
 
 ```js
 var mongoose = require('mongoose');
-var mongoosePaginate = require('mongoose-paginate');
+var mongoosePaginate = require('mongoose-lazy-paginate');
 
 var schema = new mongoose.Schema({ /* schema definition */ });
 schema.plugin(mongoosePaginate);
@@ -109,13 +104,13 @@ Book.paginate(query, options).then(function(result) {
 
 #### Zero limit
 
-You can use `limit=0` to get only metadata:
+Opposingly to mongoose-paginate we treat `limit=0` option as insignificant, so, default `limit=10` will be used, when in mongoose-pagintate you can use `limit=0` to get only metadata:
 
 ```js
 Model.paginate({}, { offset: 100, limit: 0 }).then(function(result) {
-  // result.docs - empty array
+  // result.docs - array of data if available
   // result.total
-  // result.limit - 0
+  // result.limit - 10
   // result.offset - 100
 });
 ```

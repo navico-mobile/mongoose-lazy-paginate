@@ -1,4 +1,18 @@
 
+Mongoose-lazy-paginate
+==================
+v1.0.0 / 2021-09-08
+==================
+  * New fork created
+  * Support only Mongoose >= 5.0
+  * .count method replaced by .countDocuments due to deprication
+  * Added lazy countDocuments call to improve performance
+
+<br>
+
+mongoose-paginate by edwardhotchkiss
+==================
+
 v5.0.0 / 2015-12-07
 ==================
 
