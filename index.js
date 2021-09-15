@@ -87,7 +87,7 @@ function paginate(query, options, callback) {
     }
     let result = {
       docs: data.docs,
-      total: data.count || countDocuments,
+      total: data.count || countDocuments || 0,
       limit: limit
     };
     if (offset !== undefined) {
